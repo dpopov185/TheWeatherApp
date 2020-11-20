@@ -60,115 +60,119 @@ public class MainActivity extends AppCompatActivity {
                 imn.hideSoftInputFromWindow(getCurrentFocus().getRootView().getWindowToken(), 0);
                 api_key(String.valueOf(search.getText()));
             }
-        });
-    }
 
-    private void api_key(final String City) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("http://api.openweathermap.org/data/2.5/weather?q="+City+"&appid=841377b377542c534512b71b20fa952b&units=metric")
-                .get()
-                .build();
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        try {
-            Response response = client.newCall(request).execute();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            private void api_key(final String City) {
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url("https://api.openweathermap.org/data/2.5/weather?q="+City+"&appid=841377b377542c534512b71b20fa952b&units=metric")
+                        .get()
+                        .build();
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                try {
+                    Response response = client.newCall(request).execute();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            String responseData = response.body().string();
+                            try {
+                                JSONObject json = new JSONObject(responseData);
+                                JSONArray array = json.getJSONArray("weather");
+                                JSONObject object = array.getJSONObject(0);
+
+                                String description = object.getString("description");
+                                String icons = object.getString("icon");
+
+                                JSONObject temp1 = json.getJSONObject("main");
+                                Double Temperature = temp1.getDouble("temp");
+
+                                setText(view_city, City);
+                                String temps = Math.round(Temperature) + " °С";
+                                setText(view_temp, temps);
+                                setText(view_desc, description);
+                                setImage(view_weather, icons);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    String responseData = response.body().string();
-                    try {
-                        JSONObject json = new JSONObject(responseData);
-                        JSONArray array = json.getJSONArray("weather");
-                        JSONObject object = array.getJSONObject(0);
-
-                        String description = object.getString("description");
-                        String icons = object.getString("icon");
-
-                        JSONObject temp1 = json.getJSONObject("main");
-                        Double Temperature = temp1.getDouble("temp");
-
-                        setText(view_city, City);
-                        String temps = Math.round(Temperature) + " °С";
-                        setText(view_temp, temps);
-                        setText(view_desc, description);
-                        setImage(view_weather, icons);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+            private void setText(final TextView text, final String value){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        text.setText(value);
                     }
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+                });
+            }
 
-    private void setText(final TextView text, final String value){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                text.setText(value);
+            private void setImage(final ImageView imageView, final String value){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run(){
+                        switch (value) {
+                            case "01d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon1));
+                                break;
+                            case "01n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon1));
+                                break;
+                            case "02d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon2));
+                                break;
+                            case "02n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon2));
+                                break;
+                            case "03d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon3));
+                                break;
+                            case "03n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon3));
+                                break;
+                            case "04d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon4));
+                                break;
+                            case "04n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon4));
+                                break;
+                            case "09d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon5));
+                                break;
+                            case "09n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon5));
+                                break;
+                            case "10d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon6));
+                                break;
+                            case "10n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon6));
+                                break;
+                            case "11d":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon7));
+                                break;
+                            case "11n":
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon7));
+                                break;
+                            default:
+                                imageView.setImageDrawable(getResources().getDrawable(R.drawable.weather));
+                        }
+                    }
+                });
             }
         });
-    }
 
-    private void setImage(final ImageView imageView, final String value){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run(){
-                switch (value) {
-                    case "01d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon1));
-                        break;
-                    case "01n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon1));
-                        break;
-                    case "02d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon2));
-                        break;
-                    case "02n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon2));
-                        break;
-                    case "03d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon3));
-                        break;
-                    case "03n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon3));
-                        break;
-                    case "04d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon4));
-                        break;
-                    case "04n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon4));
-                        break;
-                    case "09d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon5));
-                        break;
-                    case "09n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon5));
-                        break;
-                    case "10d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon6));
-                        break;
-                    case "10n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon6));
-                        break;
-                    case "11d":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon7));
-                        break;
-                    case "11n":
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.icon7));
-                        break;
-                    default:
-                        imageView.setImageDrawable(getResources().getDrawable(R.drawable.weather));
-                }
-            }
-        });
+
     }
 }
+
+
